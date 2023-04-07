@@ -73,7 +73,7 @@ class UserController extends Controller {
       {
         id: userInfo.id,
         username: userInfo.username,
-        exp: Math.floor(Date.now() / 1000) + (24 * 60 * 60)
+        exp: Math.floor(Date.now() / 1000) + 24 * 60 * 60
       },
       app.config.jwt.secret
     )
@@ -85,9 +85,61 @@ class UserController extends Controller {
       }
     }
   }
+
+  // 获取用户信息
+  async getUserInfo() {
+    const { ctx, app } = this
+    // 获取token
+    const token = ctx.request.header.authorization
+    // 解密 获取 username 与 id
+    const decode = app.jwt.verify(token, app.config.jwt.secret)
+    const userInfo = await ctx.service.user.getUserByName(decode.username)
+    const { id, username, signature, avatar } = userInfo
+    ctx.body = {
+      code: 200,
+      msg: '登陆成功',
+      data: {
+        id,
+        username,
+        signature,
+        avatar
+      }
+    }
+  }
+  // 修改用户信息
+  async editUserInfo() {
+    const { ctx, app } = this
+    const { signature } = ctx.request.body
+
+    try {
+      const token = ctx.request.header.authorization
+      const decode = app.jwt.verify(token, app.config.jwt.secret)
+      console.log(decode)
+      if (!decode) return
+      const user_id = decode.id
+      const userInfo = await ctx.service.user.getUserByName(decode.username)
+      const result = await ctx.service.user.editUserInfo({ ...userInfo, signature })
+      ctx.body = {
+        code: 200,
+        msg: '请求成功',
+        data: {
+          id: user_id,
+          signature,
+          username: userInfo.username
+        }
+      }
+    } catch (err) {
+      ctx.body = {
+        code: 500,
+        msg: '编辑失败',
+        data: null
+      }
+      return null
+    }
+  }
   // 测试
   async test() {
-    const {ctx, app} = this
+    const { ctx, app } = this
     const token = ctx.request.header.authorization
     const decode = app.jwt.verify(token, app.config.jwt.secret)
 
