@@ -12,4 +12,5 @@ module.exports = (app) => {
   router.get('/user/test', _jwt, controller.user.test)
   router.get('/user/get_userinfo', _jwt, controller.user.getUserInfo)
   router.post('/user/edit_userinfo', _jwt, controller.user.editUserInfo)
+  router.post('/upload', controller.upload.upload)
 }

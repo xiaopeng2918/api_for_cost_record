@@ -109,7 +109,7 @@ class UserController extends Controller {
   // 修改用户信息
   async editUserInfo() {
     const { ctx, app } = this
-    const { signature } = ctx.request.body
+    const { signature,avatar } = ctx.request.body
 
     try {
       const token = ctx.request.header.authorization
@@ -118,14 +118,15 @@ class UserController extends Controller {
       if (!decode) return
       const user_id = decode.id
       const userInfo = await ctx.service.user.getUserByName(decode.username)
-      const result = await ctx.service.user.editUserInfo({ ...userInfo, signature })
+      const result = await ctx.service.user.editUserInfo({ ...userInfo, signature,avatar })
       ctx.body = {
         code: 200,
         msg: '请求成功',
         data: {
           id: user_id,
           signature,
-          username: userInfo.username
+          username: userInfo.username,
+          avatar
         }
       }
     } catch (err) {

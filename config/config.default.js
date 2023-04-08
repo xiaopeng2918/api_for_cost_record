@@ -29,6 +29,10 @@ module.exports = (appInfo) => {
     app: true,
     agent: false
   }
+  config.multipart = {
+    // egg 提供两种文件接收模式，1 是 file 直接读取，2 是 stream 流的方式
+    mode: 'file'
+  }
   // csrf
   config.security = {
     csrf: {
@@ -36,13 +40,19 @@ module.exports = (appInfo) => {
       ignoreJSON: true
     },
     domainWhiteList: ['*']
-  },
+  }
   config.jwt = {
-    secret: 'yxp2918',
+    secret: 'yxp2918'
+  }
+  config.cors = {
+    origin: '*',
+    credentials: true,
+    allowMethods: 'GET,HEAD,PUT,POST,DELETE,PATCH'
   }
   // add your user config here
   const userConfig = {
     // myAppName: 'egg',
+    uploadDir: 'app/public/upload'
   }
 
   return {
