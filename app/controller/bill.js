@@ -130,7 +130,6 @@ class BillController extends Controller {
     }
   }
   // 根据账单id 与账单所属用户user_id获取账单详情
-
   async detail() {
     const { ctx, app } = this
     const { id } = ctx.request.query
@@ -159,6 +158,49 @@ class BillController extends Controller {
         code: 500,
         msg: '获取账单详情页失败',
         data: null
+      }
+    }
+  }
+  // 更新表单
+  async update() {
+    const { ctx, app } = this
+    // 账单的相关参数，这里注意要把账单的 id 也传进来
+    const { id, amount, type_id, type_name, date, pay_type, remark = '' } = ctx.request.body
+    // 判空处理
+    if (!amount || !type_id || !type_name || !date || !pay_type) {
+      ctx.body = {
+        code: 400,
+        msg: '参数错误',
+        data: null
+      }
+    }
+    try {
+      let user_id
+      const token = ctx.request.header.authorization
+      const decode = app.jwt.verify(token, app.config.jwt.secret)
+      if (!decode) return
+      user_id = decode.id
+      const result = await ctx.service.bill.update({
+        id,
+        amount,
+        type_id,
+        type_name,
+        date,
+        pay_type,
+        remark,
+        user_id
+      })
+      ctx.body = {
+        code: 200,
+        msg: '修改详情页成功',
+        data: null
+      }
+    } catch (err) {
+      console.log(err)
+      ctx.body = {
+        code: 500,
+        msg: '修改失败',
+        data: err
       }
     }
   }
