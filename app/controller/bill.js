@@ -161,7 +161,7 @@ class BillController extends Controller {
       }
     }
   }
-  // 更新表单
+  // 更新账单
   async update() {
     const { ctx, app } = this
     // 账单的相关参数，这里注意要把账单的 id 也传进来
@@ -201,6 +201,39 @@ class BillController extends Controller {
         code: 500,
         msg: '修改失败',
         data: err
+      }
+    }
+  }
+
+  // 删除账单
+  async delete() {
+    const { ctx, app } = this
+    const { id } = ctx.request.body
+    if (!id) {
+      ctx.body = {
+        code: 400,
+        msg: '参数错误',
+        data: null
+      }
+      return
+    }
+    try {
+      let user_id
+      const token = ctx.request.header.authorization
+      const decode = await app.jwt.verify(token, app.config.jwt.secret)
+      if (!decode) return
+      user_id = decode.id
+      const result = await ctx.service.bill.delete(id,user_id)
+      ctx.body = {
+        code: 200,
+        msg: '删除成功',
+        data: null
+      }
+    } catch (err) {
+      ctx.body = {
+        code: 500,
+        msg: '删除失败',
+        data: null
       }
     }
   }
