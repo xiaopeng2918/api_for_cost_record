@@ -5,6 +5,7 @@ const moment = require('moment')
 const Controller = require('egg').Controller
 
 class BillController extends Controller {
+  // 添加表单
   async add() {
     const { ctx, app } = this
     const { amount, type_id, type_name, date, pay_type, remark = '' } = ctx.request.body
@@ -14,6 +15,7 @@ class BillController extends Controller {
         msg: '参数错误',
         date: null
       }
+      return
     }
     try {
       let user_id
@@ -41,9 +43,92 @@ class BillController extends Controller {
         msg: '添加失败',
         data: null
       }
-      
+    }
+  }
+  // 获取表单 以月为单位
+  async list() {
+    const { ctx, app } = this
+    const { date, page = 1, page_size = 5, type_id = 'all' } = ctx.query
+    try {
+      let user_id
+      const token = ctx.request.header.authorization
+      const decode = app.jwt.verify(token, app.config.jwt.secret)
+      if (!decode) return
+      user_id = decode.id
+      // 根据用户id拿到他的bill列表
+      const list = await ctx.service.bill.list(user_id)
+      // 过滤出每月的列表 按账单所属类别
+      const _list = list.filter((item) => {
+        if (type_id != 'all') {
+          // 数据库存取的date为时间戳
+          return moment(Number(item.date)).format('YYYY-MM') == date && type_id == item.type_id
+        }
+        return moment(Number(item.date)).format('YYYY-MM') == date
+      })
+      // 格式化数据，整理为前端应当收到的格式
+      let listMap = _list
+        .reduce((curr, item) => {
+          // 获取指定一天的数据
+          const date = moment(Number(item.date)).format('YYYY-MM-DD')
+          if (curr && curr.length && curr.findIndex((item) => item.date == date) > -1) {
+            const index = curr.findIndex((item) => item.date == date)
+            curr[index].bills.push(item)
+          }
+          if (curr && curr.length && curr.findIndex((item) => item.date == date) == -1) {
+            curr.push({
+              date,
+              bills: [item]
+            })
+          }
+          if (!curr.length) {
+            curr.push({
+              date,
+              bills: [item]
+            })
+          }
+          return curr
+        }, [])
+        .sort((a, b) => moment(b.date) - moment(a.date))
+
+      // 分页 按照每天的账单来进行分页
+      const fileterListMap = listMap.slice((page - 1) * page_size, page * page_size)
+      // 计算当月收入和支出
+      let __list = list.filter((item) => moment(Number(item.date)).format('YYYY-MM') == date)
+      // 支出
+      let totalExpense = __list.reduce((curr, item) => {
+        if (item.pay_type == 1) {
+          curr += Number(item.amount)
+          return curr
+        }
+        return curr
+      }, 0)
+      // 收入
+      let totalIncome = __list.reduce((curr, item) => {
+        if (item.pay_type == 2) {
+          curr += Number(item.amount)
+          return curr
+        }
+        return curr
+      }, 0)
+      // 返回数据
+      ctx.body = {
+        code: 200,
+        msg: '请求成功',
+        data: {
+          totalExpense,
+          totalIncome,
+          totalPage: Math.ceil(listMap.length / page_size),
+          list: fileterListMap || []
+        }
+      }
+    } catch (err) {
+      ctx.body = {
+        code: 500,
+        msg: '系统错误',
+        data: null
+      }
     }
   }
 }
 
-module.exports = BillController 
+module.exports = BillController
