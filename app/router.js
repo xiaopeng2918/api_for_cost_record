@@ -19,4 +19,5 @@ module.exports = (app) => {
   //bill
   router.post('/bill/add', _jwt, controller.bill.add)
   router.get('/bill/list', _jwt, controller.bill.list)
+  router.get('/bill/detail', _jwt, controller.bill.detail)
 }

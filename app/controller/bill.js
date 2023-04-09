@@ -129,6 +129,39 @@ class BillController extends Controller {
       }
     }
   }
+  // 根据账单id 与账单所属用户user_id获取账单详情
+
+  async detail() {
+    const { ctx, app } = this
+    const { id } = ctx.request.query
+    let user_id
+    const token = ctx.request.header.authorization
+    const decode = app.jwt.verify(token, app.config.jwt.secret)
+    if (!decode) return
+    user_id = decode.id
+    if (!id) {
+      ctx.body = {
+        code: 500,
+        msg: '订单id不能为空',
+        data: null
+      }
+      return
+    }
+    try {
+      const detail = await ctx.service.bill.detail(id, user_id)
+      ctx.body = {
+        code: 200,
+        msg: '请求成功',
+        data: detail
+      }
+    } catch (err) {
+      ctx.body = {
+        code: 500,
+        msg: '获取账单详情页失败',
+        data: null
+      }
+    }
+  }
 }
 
 module.exports = BillController
