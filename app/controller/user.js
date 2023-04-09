@@ -92,7 +92,7 @@ class UserController extends Controller {
     // 获取token
     const token = ctx.request.header.authorization
     // 解密 获取 username 与 id
-    const decode = app.jwt.verify(token, app.config.jwt.secret)
+    const decode = await app.jwt.verify(token, app.config.jwt.secret)
     const userInfo = await ctx.service.user.getUserByName(decode.username)
     const { id, username, signature, avatar } = userInfo
     ctx.body = {
@@ -113,8 +113,7 @@ class UserController extends Controller {
 
     try {
       const token = ctx.request.header.authorization
-      const decode = app.jwt.verify(token, app.config.jwt.secret)
-      console.log(decode)
+      const decode = await app.jwt.verify(token, app.config.jwt.secret)
       if (!decode) return
       const user_id = decode.id
       const userInfo = await ctx.service.user.getUserByName(decode.username)
@@ -142,7 +141,7 @@ class UserController extends Controller {
   async test() {
     const { ctx, app } = this
     const token = ctx.request.header.authorization
-    const decode = app.jwt.verify(token, app.config.jwt.secret)
+    const decode = await app.jwt.verify(token, app.config.jwt.secret)
 
     ctx.body = {
       code: 200,
