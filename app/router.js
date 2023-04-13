@@ -15,14 +15,15 @@ module.exports = (app) => {
   router.post('/user/edit_userinfo', _jwt, controller.user.editUserInfo)
   // upload
   router.post('/upload', controller.upload.upload)
-
+  //type
+  router.get('/type/list', _jwt, controller.type.list)
   //bill
   router.post('/bill/add', _jwt, controller.bill.add)
   router.get('/bill/list', _jwt, controller.bill.list)
   router.get('/bill/detail', _jwt, controller.bill.detail)
   router.post('/bill/update', _jwt, controller.bill.update)
   router.post('/bill/delete', _jwt, controller.bill.delete)
-  
+
   //data
   router.get('/bill/data', _jwt, controller.bill.data)
 }
