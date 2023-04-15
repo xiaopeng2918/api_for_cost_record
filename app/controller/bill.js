@@ -190,6 +190,9 @@ class BillController extends Controller {
         remark,
         user_id
       })
+      if(result ===  null){
+        throw Error
+      }
       ctx.body = {
         code: 200,
         msg: '修改详情页成功',

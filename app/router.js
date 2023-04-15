@@ -13,6 +13,7 @@ module.exports = (app) => {
   router.get('/user/test', _jwt, controller.user.test)
   router.get('/user/get_userinfo', _jwt, controller.user.getUserInfo)
   router.post('/user/edit_userinfo', _jwt, controller.user.editUserInfo)
+  router.post('/user/modify_pass', _jwt, controller.user.modifyPass) // 修改用户密码
   // upload
   router.post('/upload', controller.upload.upload)
   //type
