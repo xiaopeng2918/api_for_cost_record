@@ -157,7 +157,7 @@ class UserController extends Controller {
       }
       user_id = decode.id
       const userInfo = await ctx.service.user.getUserByName(decode.username)
-
+      console.log(userInfo.password)
       if (old_pass != userInfo.password) {
         ctx.body = {
           code: 400,

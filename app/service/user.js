@@ -8,7 +8,6 @@ class UserService extends Service {
     const { app } = this
     try {
       const result = await app.mysql.get('user', { username })
-      console.log(result)
       return result
     } catch (err) {
       console.log(err)
